@@ -17,6 +17,7 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
     console.log('New Websocket connection')
 
     socket.emit('message', 'Welcome!') // send 'message' event to that 'PARTICULAR' connection
+    socket.broadcast.emit('message', 'A new user has joined!') // send it to everybody except this particular socket
 
     socket.on('sendMessage', (msg) => {
         io.emit('message', msg)
@@ -34,6 +35,10 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
     //     // * Emit event cho tất cả các connection hiện tại
     //     io.emit('countUpdated', count)
     // })
+
+    socket.on('disconnect', () => { // built in event 'disconnect' ko cần mình emit!
+        io.emit('message', 'A user has left!')
+    })
 })
 
 server.listen(port, () => {
