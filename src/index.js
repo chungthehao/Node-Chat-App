@@ -23,6 +23,10 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
         io.emit('message', msg)
     })
 
+    socket.on('sendLocation', coords => {
+        io.emit('message', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)
+    })
+
     // * Khi dùng socket.io để transfering data -> mình đang sending & receiving cái gọi là event
     // --> Ở đây là send event từ server và receive event từ client
     // socket.emit('countUpdated', count) // Từ tham số thứ 2 trở đi, sẽ là đầu vào của callback func (event handler) bên client, thứ tự của các tham số là quan trọng!
