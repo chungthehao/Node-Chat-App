@@ -11,11 +11,12 @@ const $messages = document.querySelector('#messages') // Nơi sẽ chứa các m
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
 
-socket.on('message', (message) => { // message là data gửi từ server khi server gọi callback để ACK
-    console.log(message)
+socket.on('message', ({ text, createdAt }) => { // message là data gửi từ server khi server gọi callback để ACK
+    console.log(text, createdAt)
     // 'html' là cái sẽ render ra cho ngta xem, Mustache library sẽ compile template ra html thường
     const html = Mustache.render(messageTemplate, {
-        message
+        message: text,
+        createdAt: moment(createdAt).format('h:mm a')
     })
     // insertAdjacentHTML có 4 modes rất hay, xem doc
     $messages.insertAdjacentHTML('beforeend', html)

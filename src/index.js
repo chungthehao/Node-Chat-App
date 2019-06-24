@@ -3,6 +3,7 @@ const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
+const { generateMessage } = require('./utils/messages')
 
 const app = express()
 const server = http.createServer(app) // Nếu ko có thì express cũng tự chạy behind the scenes, refactor như vậy để dễ xài socket.io
@@ -17,8 +18,8 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => { // 'socket' is an object, chứa info về cái new connection
     console.log('New Websocket connection')
 
-    socket.emit('message', 'Welcome!') // send 'message' event to that 'PARTICULAR' connection
-    socket.broadcast.emit('message', 'A new user has joined!') // send it to everybody except this particular socket
+    socket.emit('message', generateMessage('Welcome!')) // send 'message' event to that 'PARTICULAR' connection
+    socket.broadcast.emit('message', generateMessage('A new user has joined!')) // send it to everybody except this particular socket
 
     socket.on('sendMessage', (msg, callback) => {
         // * Check for profanity in this message (check mấy từ tục tĩu)
@@ -27,7 +28,7 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
             return callback('Profanity is not allowed!')
         }
 
-        io.emit('message', msg)
+        io.emit('message', generateMessage(msg))
         callback() // Gọi callback để acknowledge the event
     })
 
@@ -51,7 +52,7 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
     // })
 
     socket.on('disconnect', () => { // built in event 'disconnect' ko cần mình emit!
-        io.emit('message', 'A user has left!')
+        io.emit('message', generateMessage('A user has left!'))
     })
 })
 
