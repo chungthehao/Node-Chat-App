@@ -9,14 +9,21 @@ const $messages = document.querySelector('#messages') // Nơi sẽ chứa các m
 
 // * Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
+const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
 
-socket.on('message', (message) => {
+socket.on('message', (message) => { // message là data gửi từ server khi server gọi callback để ACK
     console.log(message)
     // 'html' là cái sẽ render ra cho ngta xem, Mustache library sẽ compile template ra html thường
     const html = Mustache.render(messageTemplate, {
         message
     })
     // insertAdjacentHTML có 4 modes rất hay, xem doc
+    $messages.insertAdjacentHTML('beforeend', html)
+})
+
+socket.on('locationMessage', (url) => {
+    console.log(url)
+    const html = Mustache.render(locationMessageTemplate, { url })//Render template nào với data gì?
     $messages.insertAdjacentHTML('beforeend', html)
 })
 
