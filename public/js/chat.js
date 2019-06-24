@@ -5,9 +5,19 @@ const $messageForm = document.querySelector('#message-form')
 const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.querySelector('#send-location')
+const $messages = document.querySelector('#messages') // Nơi sẽ chứa các message chat
+
+// * Templates
+const messageTemplate = document.querySelector('#message-template').innerHTML
 
 socket.on('message', (message) => {
     console.log(message)
+    // 'html' là cái sẽ render ra cho ngta xem, Mustache library sẽ compile template ra html thường
+    const html = Mustache.render(messageTemplate, {
+        message
+    })
+    // insertAdjacentHTML có 4 modes rất hay, xem doc
+    $messages.insertAdjacentHTML('beforeend', html)
 })
 
 $messageForm.addEventListener('submit', e => {
