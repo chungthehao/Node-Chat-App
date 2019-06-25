@@ -18,8 +18,18 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => { // 'socket' is an object, chứa info về cái new connection
     console.log('New Websocket connection')
 
-    socket.emit('message', generateMessage('Welcome!')) // send 'message' event to that 'PARTICULAR' connection
-    socket.broadcast.emit('message', generateMessage('A new user has joined!')) // send it to everybody except this particular socket
+    //socket.emit('message', generateMessage('Welcome!')) // send 'message' event to that 'PARTICULAR' connection
+    //socket.broadcast.emit('message', generateMessage('A new user has joined!')) // send it to everybody except this particular socket
+
+    socket.on('join', ({ username, room }) => {
+        socket.join(room)
+
+        // - Mình tới giờ có 3: socket.emit, io.emit, socket.broadcast.emit
+        // io.to.emit (tới all trong room đó), socket.broadcast.to.emit (tới all trừ th này trong 1 room)
+
+        socket.emit('message', generateMessage('Welcome!'))
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined!`))
+    })
 
     socket.on('sendMessage', (msg, callback) => {
         // * Check for profanity in this message (check mấy từ tục tĩu)
@@ -28,7 +38,7 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
             return callback('Profanity is not allowed!')
         }
 
-        io.emit('message', generateMessage(msg))
+        io.to('toronto').emit('message', generateMessage(msg))
         callback() // Gọi callback để acknowledge the event
     })
 

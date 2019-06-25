@@ -11,6 +11,9 @@ const $messages = document.querySelector('#messages') // Nơi sẽ chứa các m
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
 
+// * Options
+const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
+
 socket.on('message', ({ text, createdAt }) => { // message là data gửi từ server khi server gọi callback để ACK
     console.log(text, createdAt)
     // 'html' là cái sẽ render ra cho ngta xem, Mustache library sẽ compile template ra html thường
@@ -68,3 +71,5 @@ $sendLocationButton.addEventListener('click', e => {
         })
     })
 })
+
+socket.emit('join', { username, room })
