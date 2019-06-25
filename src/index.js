@@ -3,7 +3,7 @@ const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
-const { generateMessage } = require('./utils/messages')
+const { generateMessage, generateLocationMessage } = require('./utils/messages')
 
 const app = express()
 const server = http.createServer(app) // Nếu ko có thì express cũng tự chạy behind the scenes, refactor như vậy để dễ xài socket.io
@@ -33,7 +33,7 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
     })
 
     socket.on('sendLocation', (coords, callback) => {
-        io.emit('locationMessage', `https://google.com/maps?q=${coords.latitude},${coords.longitude}`)
+        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
 
         callback() // Letting the client know that the event has indeed been acknowledge
     })

@@ -22,9 +22,12 @@ socket.on('message', ({ text, createdAt }) => { // message là data gửi từ s
     $messages.insertAdjacentHTML('beforeend', html)
 })
 
-socket.on('locationMessage', (url) => {
+socket.on('locationMessage', ({ url, createdAt }) => {
     console.log(url)
-    const html = Mustache.render(locationMessageTemplate, { url })//Render template nào với data gì?
+    const html = Mustache.render(locationMessageTemplate, { 
+        url,
+        createdAt: moment(createdAt).format('h:mm a')
+    })//Render template nào với data gì?
     $messages.insertAdjacentHTML('beforeend', html)
 })
 
