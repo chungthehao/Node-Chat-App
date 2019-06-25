@@ -4,32 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>ChatApp</title>
+    <title>Chat App</title>
+    <link rel="icon" href="/img/favicon.png">
+    <link rel="stylesheet" href="/css/styles.min.css">
 </head>
 <body>
-    <h1>Chat App</h1>
+    <div class="chat">
+        <div class="chat__sidebar">
 
-    <!-- Nơi chứa các messages -->
-    <div id="messages"></div>
+        </div>
+        <div class="chat__main">
+            <!-- Nơi chứa các messages -->
+            <div id="messages" class="chat__messages"></div>
 
-    <form id="message-form">
-        <input name="msg" placeholder="Type something...">
-        <button>Send</button>
-    </form>
+            <div class="compose">
+                <form id="message-form">
+                    <input name="msg" placeholder="Type something...">
+                    <button>Send</button>
+                </form>
 
-    <button id="send-location">Send location</button>
+                <button id="send-location">Send location</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Template sẽ đc dùng (xài thư viện mustache) -->
     <script id="message-template" type="text/html">
-        <div>
-            <p>{{createdAt}} - {{message}}</p>
+        <div class="message">
+            <p>
+                <span class="message__name">John Doe</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+            <p>{{message}}</p>
         </div>
     </script>
 
     <!-- Template dành cho việc share vị trí của mình bằng link Google Maps -->
     <script id="location-message-template" type="text/html">
-        <div>
-            <p>{{createdAt}} - <a href="{{url}}" target="_blank">My current location</a></p>
+        <div class="message">
+            <p>
+                <span class="message__name">John Doe</span>
+                <span class="message__meta">{{createdAt}}</span>
+            </p>
+            <p><a href="{{url}}" target="_blank">My current location</a></p>
         </div>
     </script>
 
