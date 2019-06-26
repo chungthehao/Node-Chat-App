@@ -38,25 +38,33 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
         // - Mình tới giờ có 3: socket.emit, io.emit, socket.broadcast.emit
         // io.to.emit (tới all trong room đó), socket.broadcast.to.emit (tới all trừ th này trong 1 room)
 
-        socket.emit('message', generateMessage('Welcome!'))
-        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`))
+        socket.emit('message', generateMessage('Admin', 'Welcome!'))
+        socket.broadcast.to(user.room).emit('message', generateMessage('Admin', `${user.username} has joined!`))
 
         callback()
     })
 
     socket.on('sendMessage', (msg, callback) => {
+        const user = getUser(socket.id)
+
+        if (!user) return callback('Fail to send!')
+
         // * Check for profanity in this message (check mấy từ tục tĩu)
         const filter = new Filter()
         if (filter.isProfane(msg)) {
             return callback('Profanity is not allowed!')
         }
 
-        io.to('toronto').emit('message', generateMessage(msg))
+        io.to(user.room).emit('message', generateMessage(user.username, msg))
         callback() // Gọi callback để acknowledge the event
     })
 
     socket.on('sendLocation', (coords, callback) => {
-        io.emit('locationMessage', generateLocationMessage(`https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
+        const user = getUser(socket.id)
+
+        if (!user) return callback('Fail to send!')
+
+        io.to(user.room).emit('locationMessage', generateLocationMessage(user.username, `https://google.com/maps?q=${coords.latitude},${coords.longitude}`))
 
         callback() // Letting the client know that the event has indeed been acknowledge
     })
@@ -78,7 +86,7 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
         const user = removeUser(socket.id)
 
         if (user) {
-            io.to(user.room).emit('message', generateMessage(`${user.username} has left!`))
+            io.to(user.room).emit('message', generateMessage('Admin', `${user.username} has left!`))
         }
     })
 })

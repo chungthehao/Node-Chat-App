@@ -14,10 +14,11 @@ const locationMessageTemplate = document.querySelector('#location-message-templa
 // * Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
-socket.on('message', ({ text, createdAt }) => { // message là data gửi từ server khi server gọi callback để ACK
-    console.log(text, createdAt)
+socket.on('message', ({ username, text, createdAt }) => { // message là data gửi từ server khi server gọi callback để ACK
+    console.log(username, text, createdAt)
     // 'html' là cái sẽ render ra cho ngta xem, Mustache library sẽ compile template ra html thường
     const html = Mustache.render(messageTemplate, {
+        username,
         message: text,
         createdAt: moment(createdAt).format('h:mm a')
     })
@@ -25,9 +26,10 @@ socket.on('message', ({ text, createdAt }) => { // message là data gửi từ s
     $messages.insertAdjacentHTML('beforeend', html)
 })
 
-socket.on('locationMessage', ({ url, createdAt }) => {
+socket.on('locationMessage', ({ username, url, createdAt }) => {
     console.log(url)
-    const html = Mustache.render(locationMessageTemplate, { 
+    const html = Mustache.render(locationMessageTemplate, {
+        username,
         url,
         createdAt: moment(createdAt).format('h:mm a')
     })//Render template nào với data gì?
