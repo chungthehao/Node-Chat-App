@@ -15,6 +15,29 @@ const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 // * Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
+const autoscroll = () => {
+    // New message element
+    const $newMessage = $messages.lastElementChild
+
+    // Height of the new message
+    const newMessageStyles = getComputedStyle($newMessage) // hàm này browser c cấp sẵn
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin // total height (có cả margin bottom)
+
+    // Visible height
+    const visibleHeight = $messages.offsetHeight
+
+    // Height of messages container (bao gồm cả mấy cái dài quá của cả thanh cuộn)
+    const containerHeight = $messages.scrollHeight
+
+    // How far have I scrolled?
+    const scrollOffset = $messages.scrollTop + visibleHeight // scrollTop: Trả về khoảng cách đã scroll của scrollbar (hiện tại), nếu chưa scroll (ở trên cùng) thì = 0
+
+    if (containerHeight - newMessageHeight <= scrollOffset) { // Nếu đang ở bottom trc khi có mesage mới
+        $messages.scrollTop = $messages.scrollHeight // Thì cuộn xuống dưới cùng
+    }
+}
+
 socket.on('message', ({ username, text, createdAt }) => { // message là data gửi từ server khi server gọi callback để ACK
     console.log(username, text, createdAt)
     // 'html' là cái sẽ render ra cho ngta xem, Mustache library sẽ compile template ra html thường
@@ -25,6 +48,7 @@ socket.on('message', ({ username, text, createdAt }) => { // message là data g�
     })
     // insertAdjacentHTML có 4 modes rất hay, xem doc
     $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
 })
 
 socket.on('locationMessage', ({ username, url, createdAt }) => {
@@ -35,6 +59,7 @@ socket.on('locationMessage', ({ username, url, createdAt }) => {
         createdAt: moment(createdAt).format('h:mm a')
     })//Render template nào với data gì?
     $messages.insertAdjacentHTML('beforeend', html)
+    autoscroll()
 })
 
 socket.on('roomData', ({ room, users }) => {
