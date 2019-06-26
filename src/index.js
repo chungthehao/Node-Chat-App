@@ -4,6 +4,7 @@ const express = require('express')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
 const { generateMessage, generateLocationMessage } = require('./utils/messages')
+const { addUser, removeUser, getUser, getUsersInRoom } = require('./utils/users')
 
 const app = express()
 const server = http.createServer(app) // Nếu ko có thì express cũng tự chạy behind the scenes, refactor như vậy để dễ xài socket.io
@@ -21,14 +22,26 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
     //socket.emit('message', generateMessage('Welcome!')) // send 'message' event to that 'PARTICULAR' connection
     //socket.broadcast.emit('message', generateMessage('A new user has joined!')) // send it to everybody except this particular socket
 
-    socket.on('join', ({ username, room }) => {
-        socket.join(room)
+    socket.on('join', ({ username, room }, callback) => {
+        // * Để keep track các user (để các event listener khác access để thông tin user, room)
+        // Chú ý: destructure kq trả về từ addUser, nhưng error và user ko đồng thời tồn tại
+        const { error, user } = addUser({ 
+            id: socket.id, // the unique identifier for this particular connection
+            username,
+            room
+        })
+
+        if (error) return callback(error) // Gửi ACK về để báo lỗi cho phía client
+
+        socket.join(user.room) // Ko xài trực tiếp param 'room' luôn?? Vì trong hàm addUser có trim, lowercase,...
 
         // - Mình tới giờ có 3: socket.emit, io.emit, socket.broadcast.emit
         // io.to.emit (tới all trong room đó), socket.broadcast.to.emit (tới all trừ th này trong 1 room)
 
         socket.emit('message', generateMessage('Welcome!'))
-        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined!`))
+        socket.broadcast.to(user.room).emit('message', generateMessage(`${user.username} has joined!`))
+
+        callback()
     })
 
     socket.on('sendMessage', (msg, callback) => {
@@ -62,7 +75,11 @@ io.on('connection', (socket) => { // 'socket' is an object, chứa info về cá
     // })
 
     socket.on('disconnect', () => { // built in event 'disconnect' ko cần mình emit!
-        io.emit('message', generateMessage('A user has left!'))
+        const user = removeUser(socket.id)
+
+        if (user) {
+            io.to(user.room).emit('message', generateMessage(`${user.username} has left!`))
+        }
     })
 })
 
