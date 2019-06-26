@@ -10,6 +10,7 @@ const $messages = document.querySelector('#messages') // Nơi sẽ chứa các m
 // * Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
+const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 // * Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
@@ -34,6 +35,14 @@ socket.on('locationMessage', ({ username, url, createdAt }) => {
         createdAt: moment(createdAt).format('h:mm a')
     })//Render template nào với data gì?
     $messages.insertAdjacentHTML('beforeend', html)
+})
+
+socket.on('roomData', ({ room, users }) => {
+    const html = Mustache.render(sidebarTemplate, {
+        room,
+        users
+    })
+    document.querySelector('#sidebar').innerHTML = html
 })
 
 $messageForm.addEventListener('submit', e => {
